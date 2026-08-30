@@ -12,7 +12,6 @@ var stockfishReady = false;
 $(document).ready(function() {
     console.log('DOM ready');
     
-    // Создаем комнату
     $('#create-room-btn').on('click', function() {
         username = prompt('Введите ваше имя:', 'Player' + Math.floor(Math.random() * 1000));
         if (username) {
@@ -20,7 +19,6 @@ $(document).ready(function() {
         }
     });
     
-    // Войти в комнату
     $('#join-room-btn').on('click', function() {
         var roomCode = $('#room-code-input').val().trim();
         if (roomCode) {
@@ -35,7 +33,6 @@ $(document).ready(function() {
 });
 
 function createRoom() {
-    // Генерируем случайный код комнаты
     room = Math.random().toString(36).substring(2, 10).toUpperCase();
     startGame();
 }
@@ -64,8 +61,7 @@ function initBoard() {
         pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
         onDragStart: onDragStart,
         onDrop: onDrop,
-        onSnapEnd: onSnapEnd,
-        onMouseoutSquare: onMouseoutSquare
+        onSnapEnd: onSnapEnd
     };
     
     board = Chessboard('board', config);
@@ -86,7 +82,6 @@ function initSocket() {
         game.load(data.fen);
         board.position(data.fen);
         
-        // Определяем цвет игрока
         if (data.players.length > 1) {
             if (data.players[0] === username) {
                 playerColor = 'w';
@@ -115,24 +110,24 @@ function initSocket() {
         updateStatus();
     });
     
+    // ИСПРАВЛЕНО - чат
     socket.on('chat_message', function(data) {
+        console.log('Chat message received:', data);
         addChatMessage(data.username, data.text);
     });
     
     socket.on('message', function(data) {
+        console.log('System message:', data);
         addSystemMessage(data.text);
     });
     
-    // Кнопка отправки чата
     $('#send-chat').on('click', sendChat);
     $('#chat-text').on('keypress', function(e) {
         if (e.which === 13) sendChat();
     });
     
-    // Кнопка подсказки
     $('#hint-btn').on('click', getHint);
     
-    // Кнопка копирования ссылки
     $('#copy-link-btn').on('click', function() {
         var url = window.location.origin + '/room/' + room;
         navigator.clipboard.writeText(url).then(function() {
@@ -144,7 +139,6 @@ function initSocket() {
 function initStockfish() {
     console.log('Initializing Stockfish...');
     try {
-        // Используем Stockfish через Web Worker
         stockfish = new Worker('https://cdn.jsdelivr.net/npm/stockfish.js@10.0.0/stockfish.js');
         
         stockfish.onmessage = function(event) {
@@ -161,18 +155,17 @@ function initStockfish() {
                 if (bestMove && bestMove !== '(none)') {
                     showHint(bestMove);
                 } else {
-                    $('#hint-text').text('Нет хороших ходов или мат!');
+                    $('#hint-text').text('Нет хороших ходов!');
                 }
             }
         };
         
-        // Инициализация движка
         stockfish.postMessage('uci');
         stockfish.postMessage('isready');
         
     } catch (error) {
         console.error('Failed to load Stockfish:', error);
-        $('#hint-text').text('Подсказки временно недоступны');
+        $('#hint-text').text('Подсказки недоступны');
     }
 }
 
@@ -192,9 +185,7 @@ function getHint() {
         return;
     }
     
-    $('#hint-text').text('🤔 Анализирую позицию...');
-    
-    // Отправляем позицию на анализ
+    $('#hint-text').text('🤔 Анализирую...');
     stockfish.postMessage('position fen ' + game.fen());
     stockfish.postMessage('go depth 8');
 }
@@ -202,9 +193,7 @@ function getHint() {
 function showHint(bestMove) {
     var from = bestMove.substring(0, 2);
     var to = bestMove.substring(2, 4);
-    var promotion = bestMove.substring(4, 5);
     
-    // Подсветка клеток
     $('.square-' + from).addClass('highlight-from');
     $('.square-' + to).addClass('highlight-to');
     
@@ -232,16 +221,8 @@ function getPieceName(type) {
 
 function onDragStart(source, piece, position, orientation) {
     if (game.game_over()) return false;
-    
-    // Можно двигать только свои фигуры
     if ((playerColor === 'w' && piece.search(/^b/) !== -1) ||
         (playerColor === 'b' && piece.search(/^w/) !== -1)) {
-        return false;
-    }
-    
-    // Можно двигать только в свой ход
-    if ((game.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (game.turn() === 'b' && piece.search(/^w/) !== -1)) {
         return false;
     }
 }
@@ -275,13 +256,9 @@ function onSnapEnd() {
     board.position(game.fen());
 }
 
-function onMouseoutSquare(square) {
-    // Убираем подсветку
-    $('.square-' + square).removeClass('highlight-from highlight-to');
-}
-
 function sendChat() {
     var text = $('#chat-text').val().trim();
+    console.log('Sending chat:', text);
     if (text && socket) {
         socket.emit('chat', { room: room, username: username, text: text });
         $('#chat-text').val('');
@@ -289,15 +266,23 @@ function sendChat() {
 }
 
 function addChatMessage(username, text) {
-    var msg = $('<div>').html('<strong>' + username + '</strong>: ' + text);
+    console.log('Adding chat message:', username, text);
+    var msg = $('<div>').html('<strong>' + escapeHtml(username) + '</strong>: ' + escapeHtml(text));
     $('#chat-messages').append(msg);
     $('#chat-messages')[0].scrollTop = $('#chat-messages')[0].scrollHeight;
 }
 
 function addSystemMessage(text) {
+    console.log('Adding system message:', text);
     var msg = $('<div class="system">').text(text);
     $('#chat-messages').append(msg);
     $('#chat-messages')[0].scrollTop = $('#chat-messages')[0].scrollHeight;
+}
+
+function escapeHtml(text) {
+    var div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function updateStatus() {
@@ -314,11 +299,5 @@ function updateStatus() {
     }
     $('#status').text(status);
 }
-
-// Добавляем CSS для подсветки
-$('<style>')
-    .prop('type', 'text/css')
-    .html('.square-55d63 { background: rgba(255, 255, 0, 0.5) !important; } .highlight-from { background: rgba(255, 255, 0, 0.8) !important; } .highlight-to { background: rgba(0, 255, 0, 0.8) !important; }')
-    .appendTo('head');
 
 console.log('=== Game Ready ===');
