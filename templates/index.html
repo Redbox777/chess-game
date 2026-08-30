@@ -3,42 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шахматы - Мультиплеер</title>
+    <title>Шахматы Онлайн</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Шахматы</h1>
-            <div id="room-info" style="margin-top: 10px; color: #666;"></div>
+            <h1>♔ Шахматы Онлайн ♚</h1>
         </header>
-        <div class="login-form" id="login-form">
-            <input type="text" id="username" placeholder="Введите ваше имя" maxlength="20">
-            <button id="join-btn">Присоединиться</button>
+        
+        <!-- Главный экран - создание/вход в комнату -->
+        <div id="main-menu" class="menu">
+            <div class="menu-card">
+                <h2>Создать новую игру</h2>
+                <button id="create-room-btn" class="btn-primary"> Создать комнату</button>
+                
+                <div class="divider">или</div>
+                
+                <h2>Войти в комнату</h2>
+                <input type="text" id="room-code-input" placeholder="Введите код комнаты" maxlength="8">
+                <button id="join-room-btn" class="btn-primary">🚀 Войти</button>
+            </div>
         </div>
-        <main id="game-area" style="display: none;">
-            <div class="board-container">
-                <div id="board"></div>
+        
+        <!-- Экран игры -->
+        <div id="game-screen" style="display: none;">
+            <div class="room-info">
+                <span>🏠 Комната: </span>
+                <strong id="room-code-display"></strong>
+                <button id="copy-link-btn" class="btn-small"> Копировать ссылку</button>
             </div>
-            <div class="controls">
-                <button id="hint-btn" class="btn-hint">💡 Подсказать ход</button>
-                <div id="hint-text" class="hint-text"></div>
-            </div>
-            <div class="chat-container">
-                <div class="chat-messages" id="chat-messages"></div>
-                <div class="chat-input">
-                    <input type="text" id="chat-text" placeholder="Сообщение..." maxlength="100">
-                    <button id="send-chat">Отправить</button>
+            
+            <div class="game-layout">
+                <div class="board-section">
+                    <div class="player-info" id="player-black">
+                        <span class="player-name">⚫ Чёрные: </span>
+                        <span id="black-player">Ожидание...</span>
+                    </div>
+                    
+                    <div id="board"></div>
+                    
+                    <div class="player-info" id="player-white">
+                        <span class="player-name">⚪ Белые: </span>
+                        <span id="white-player">Ожидание...</span>
+                    </div>
+                    
+                    <div class="controls">
+                        <button id="hint-btn" class="btn-hint">💡 Подсказать ход</button>
+                        <div id="hint-text" class="hint-text"></div>
+                        <div id="status" class="status"></div>
+                    </div>
+                </div>
+                
+                <div class="chat-section">
+                    <div class="chat-header">
+                        <h3>💬 Чат</h3>
+                        <span id="players-count" class="players-count"></span>
+                    </div>
+                    <div class="chat-messages" id="chat-messages"></div>
+                    <div class="chat-input">
+                        <input type="text" id="chat-text" placeholder="Сообщение..." maxlength="100">
+                        <button id="send-chat">➤</button>
+                    </div>
                 </div>
             </div>
-        </main>
+        </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.0/stockfish.js"></script>
     <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 </body>
 </html>
