@@ -1,80 +1,168 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Шахматы Онлайн</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chess Online</title>
+  <link rel="stylesheet"
+        href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css">
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>♔ Шахматы Онлайн ♚</h1>
-        </header>
-        
-        <!-- Главный экран - создание/вход в комнату -->
-        <div id="main-menu" class="menu">
-            <div class="menu-card">
-                <h2>Создать новую игру</h2>
-                <button id="create-room-btn" class="btn-primary"> Создать комнату</button>
-                
-                <div class="divider">или</div>
-                
-                <h2>Войти в комнату</h2>
-                <input type="text" id="room-code-input" placeholder="Введите код комнаты" maxlength="8">
-                <button id="join-room-btn" class="btn-primary">🚀 Войти</button>
-            </div>
+
+<!-- ЛОББИ -->
+<section id="lobby-section">
+  <header>
+    <h1>♟ Chess Online</h1>
+  </header>
+  <div class="lobby">
+    <div class="lobby-card">
+      <h2>Играть онлайн</h2>
+
+      <div class="form-group">
+        <label for="username-input">Ваше имя</label>
+        <input id="username-input" type="text" placeholder="Например: Magnus"
+               maxlength="20" autocomplete="off">
+      </div>
+
+      <div class="form-group">
+        <label>Время на партию</label>
+        <div class="time-selector">
+          <button class="time-btn active" data-minutes="5">5 мин</button>
+          <button class="time-btn" data-minutes="10">10 мин</button>
+          <button class="time-btn" data-minutes="15">15 мин</button>
+          <button class="time-btn" data-minutes="30">30 мин</button>
         </div>
-        
-        <!-- Экран игры -->
-        <div id="game-screen" style="display: none;">
-            <div class="room-info">
-                <span>🏠 Комната: </span>
-                <strong id="room-code-display"></strong>
-                <button id="copy-link-btn" class="btn-small"> Копировать ссылку</button>
-            </div>
-            
-            <div class="game-layout">
-                <div class="board-section">
-                    <div class="player-info" id="player-black">
-                        <span class="player-name">⚫ Чёрные: </span>
-                        <span id="black-player">Ожидание...</span>
-                    </div>
-                    
-                    <div id="board"></div>
-                    
-                    <div class="player-info" id="player-white">
-                        <span class="player-name">⚪ Белые: </span>
-                        <span id="white-player">Ожидание...</span>
-                    </div>
-                    
-                    <div class="controls">
-                        <button id="hint-btn" class="btn-hint">💡 Подсказать ход</button>
-                        <div id="hint-text" class="hint-text"></div>
-                        <div id="status" class="status"></div>
-                    </div>
-                </div>
-                
-                <div class="chat-section">
-                    <div class="chat-header">
-                        <h3>💬 Чат</h3>
-                        <span id="players-count" class="players-count"></span>
-                    </div>
-                    <div class="chat-messages" id="chat-messages"></div>
-                    <div class="chat-input">
-                        <input type="text" id="chat-text" placeholder="Сообщение..." maxlength="100">
-                        <button id="send-chat">➤</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
+
+      <button id="btn-create" class="btn btn-primary">✚ Создать игру</button>
+
+      <div class="divider">или войти по коду</div>
+
+      <div class="form-group">
+        <label for="room-input">Код комнаты</label>
+        <input id="room-input" type="text" placeholder="ABCD" maxlength="8"
+               autocomplete="off"
+               style="text-transform:uppercase;letter-spacing:4px;font-size:1.2rem;text-align:center">
+      </div>
+
+      <button id="btn-join" class="btn btn-primary">→ Войти в комнату</button>
     </div>
-    
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="{{ url_for('static', filename='js/game.js') }}"></script>
+  </div>
+</section>
+
+
+<!-- ИГРА -->
+<section id="game-section" style="display:none;flex-direction:column;min-height:100vh;">
+
+  <header>
+    <h1>♟ Chess Online</h1>
+    <div class="room-info">
+      Комната: <span id="room-display">—</span>
+      &nbsp;|&nbsp;
+      Вы: <span id="player-name-display">—</span>
+    </div>
+  </header>
+
+  <div class="game-wrapper">
+
+    <!-- Доска -->
+    <div class="board-section">
+
+      <div class="player-bar" id="bar-opponent">
+        <div class="avatar">♟</div>
+        <div>
+          <div class="name" id="player-top-name">Ожидаем…</div>
+          <div style="font-size:0.75rem;color:var(--text-muted)" id="label-top">Соперник</div>
+        </div>
+        <div class="timer" id="timer-top">—</div>
+      </div>
+
+      <div id="status-bar" class="status-bar">Ожидаем второго игрока…</div>
+
+      <div class="board-container">
+        <div id="board"></div>
+      </div>
+
+      <div class="hint-box">
+        💡 <strong id="hint-text">нажмите "Подсказка"</strong>
+      </div>
+
+      <div class="board-controls">
+        <button class="btn btn-secondary" id="btn-flip">⇅ Перевернуть</button>
+        <button class="btn btn-secondary" id="btn-hint">💡 Подсказка</button>
+        <button class="btn btn-secondary" id="btn-draw">½ Ничья</button>
+        <button class="btn btn-secondary" id="btn-resign"
+                style="color:var(--accent)">⚑ Сдаться</button>
+      </div>
+
+      <div class="player-bar" id="bar-me">
+        <div class="avatar">♙</div>
+        <div>
+          <div class="name" id="player-bottom-name">Вы</div>
+          <div style="font-size:0.75rem;color:var(--text-muted)" id="label-bottom">Я</div>
+        </div>
+        <div class="timer" id="timer-bottom">—</div>
+      </div>
+
+    </div>
+
+    <!-- Боковая панель -->
+    <div class="side-panel">
+      <div class="move-history">
+        <h3>📋 История ходов</h3>
+        <div class="move-list" id="move-list"></div>
+      </div>
+      <div class="chat-box">
+        <h3>💬 Чат</h3>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-row">
+          <input id="chat-input" type="text"
+                 placeholder="Сообщение…" maxlength="200" autocomplete="off">
+          <button id="chat-send">➤</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- МОДАЛКА: конец игры -->
+<div class="modal-overlay" id="modal-end">
+  <div class="modal">
+    <div id="modal-end-emoji" style="font-size:3rem;margin-bottom:8px">♟</div>
+    <h2 id="modal-end-title">Игра окончена</h2>
+    <p id="modal-end-body" style="color:var(--text-muted);margin:8px 0 20px"></p>
+    <div class="btn-row">
+      <button class="btn btn-primary"   id="btn-rematch">↺ Реванш</button>
+      <button class="btn btn-secondary" id="btn-lobby">← В лобби</button>
+    </div>
+  </div>
+</div>
+
+<!-- МОДАЛКА: предложение ничьей -->
+<div class="modal-overlay" id="modal-draw">
+  <div class="modal">
+    <div style="font-size:2.5rem;margin-bottom:8px">½</div>
+    <h2>Предложение ничьей</h2>
+    <p style="color:var(--text-muted);margin:8px 0 20px">Соперник предлагает ничью. Принять?</p>
+    <div class="btn-row">
+      <button class="btn btn-primary"   id="btn-draw-accept">✓ Принять</button>
+      <button class="btn btn-secondary" id="btn-draw-decline">✗ Отклонить</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+
+<!-- СКРИПТЫ -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+<script src="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script src="/static/js/game.js"></script>
 </body>
 </html>
