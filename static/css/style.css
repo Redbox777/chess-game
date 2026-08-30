@@ -1,303 +1,875 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* =============================================
+   Chess Game — style.css
+   Этап 1: критичные исправления
+   ============================================= */
+
+/* ---------- Reset & Base ---------- */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* Классические цвета шахматной доски (chess.com) */
+  --board-light: #f0d9b5;
+  --board-dark:  #b58863;
+  --board-highlight-last: rgba(20, 85, 30, 0.5);   /* зелёный — последний ход */
+  --board-highlight-move: rgba(20, 85, 30, 0.3);   /* точки возможных ходов */
+  --board-check: rgba(220, 20, 20, 0.7);           /* красный — шах */
+
+  /* Интерфейс */
+  --bg-page:    #1a1a2e;
+  --bg-panel:   #16213e;
+  --bg-card:    #0f3460;
+  --accent:     #e94560;
+  --accent-2:   #533483;
+  --text:       #eaeaea;
+  --text-muted: #a0a0b0;
+  --border:     rgba(255,255,255,0.08);
+
+  --radius: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-    color: #333;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg-page);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
+/* ---------- Layout ---------- */
 .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
 }
 
+/* ---------- Header ---------- */
 header {
-    text-align: center;
-    margin-bottom: 30px;
-    color: white;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 header h1 {
-    font-size: 2.5em;
-    font-weight: 700;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text);
 }
 
-/* Меню */
-.menu {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 60vh;
+header .room-info {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: var(--text-muted);
 }
 
-.menu-card {
-    background: white;
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-    max-width: 400px;
-    width: 100%;
+header .room-info span {
+  color: var(--accent);
+  font-weight: 600;
 }
 
-.menu-card h2 {
-    margin: 20px 0 15px;
-    color: #333;
-    font-size: 1.3em;
-    text-align: center;
+/* ---------- Lobby / Join Screen ---------- */
+.lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  padding: 40px 16px;
+  gap: 32px;
 }
 
-.divider {
-    text-align: center;
-    color: #999;
-    margin: 20px 0;
-    font-style: italic;
+.lobby-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 40px 32px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: var(--shadow);
 }
+
+.lobby-card h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 1.6rem;
+}
+
+.lobby-card .form-group {
+  margin-bottom: 16px;
+}
+
+.lobby-card label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.lobby-card input[type="text"] {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.lobby-card input[type="text"]:focus {
+  border-color: var(--accent);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  text-decoration: none;
+}
+
+.btn:active { transform: scale(0.97); }
 
 .btn-primary {
-    width: 100%;
-    padding: 15px;
-    font-size: 16px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: transform 0.2s;
+  background: var(--accent);
+  color: #fff;
+  width: 100%;
+  margin-top: 8px;
 }
 
-.btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+.btn-secondary {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 1px solid var(--border);
 }
 
-#room-code-input {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    text-align: center;
-    margin-bottom: 10px;
-    color: #333;
+.btn:hover { opacity: 0.88; }
+
+.divider {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 16px 0;
+  position: relative;
 }
 
-#room-code-input:focus {
-    outline: none;
-    border-color: #667eea;
+.divider::before, .divider::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 40%;
+  height: 1px;
+  background: var(--border);
 }
 
-/* Экран игры */
-.room-info {
-    background: white;
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    color: #333;
+.divider::before { left: 0; }
+.divider::after  { right: 0; }
+
+/* ---------- Game Layout ---------- */
+.game-wrapper {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 16px;
+  align-items: flex-start;
+  justify-content: center;
 }
 
-.room-info strong {
-    font-size: 1.2em;
-    color: #667eea;
-    font-family: monospace;
-}
-
-.btn-small {
-    padding: 8px 16px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 14px;
-}
-
-.game-layout {
-    display: grid;
-    grid-template-columns: 1fr 350px;
-    gap: 20px;
-}
-
+/* Left panel: player info + board + controls */
 .board-section {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
 }
 
-.player-info {
-    padding: 12px;
-    background: #f5f5f7;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    color: #333;
-    font-weight: 500;
+/* Right panel: moves + chat */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 260px;
+  flex-shrink: 0;
 }
 
+/* ---------- Player Info Bars ---------- */
+.player-bar {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.player-bar .avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.player-bar .name {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.player-bar .timer {
+  margin-left: auto;
+  font-family: 'Courier New', monospace;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.player-bar.active .timer {
+  color: #4caf50;
+}
+
+.player-bar.low-time .timer {
+  color: var(--accent);
+  animation: blink 1s step-start infinite;
+}
+
+@keyframes blink {
+  50% { opacity: 0.4; }
+}
+
+/* ---------- Chessboard ---------- */
+.board-container {
+  position: relative;
+}
+
+/* Доска адаптируется под viewport */
 #board {
-    width: 100%;
-    max-width: 600px;
-    margin: 0 auto;
+  width: min(560px, 94vw, calc(100vh - 260px));
 }
 
-.controls {
-    margin-top: 20px;
-    text-align: center;
+/* ===== КРИТИЧНО: цвета клеток chessboard.js =====
+   chessboard.js добавляет классы .white-1e1d7 и .black-3c85d
+   (или аналогичные с хешем). Переопределяем все варианты.
+*/
+
+/* Для chessboard.js v1.x */
+.white-1e1d7 { background-color: var(--board-light) !important; }
+.black-3c85d { background-color: var(--board-dark)  !important; }
+
+/* Универсальное правило — перекрывает любой хеш-суффикс */
+[class*="square-"] {
+  /* Не перезаписываем базовый цвет здесь — только дополнения */
 }
 
-.btn-hint {
-    padding: 12px 30px;
-    font-size: 16px;
-    font-weight: 600;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-bottom: 10px;
+/* chessboard.js генерирует inline-стиль, но цвет клеток задаётся
+   через CSS-классы. Если библиотека добавляет класс .light-sq / .dark-sq — покрываем: */
+.light-sq { background-color: var(--board-light) !important; }
+.dark-sq  { background-color: var(--board-dark)  !important; }
+
+/* Для старых версий chessboard.js */
+.chess-board .white { background-color: var(--board-light); }
+.chess-board .black { background-color: var(--board-dark);  }
+
+/* Подсветки */
+.highlight-last-from,
+.highlight-last-to {
+  background-color: var(--board-highlight-last) !important;
 }
 
-.hint-text {
-    padding: 12px;
-    background: #fff3cd;
-    border-radius: 6px;
-    margin: 10px 0;
-    font-weight: 500;
-    min-height: 40px;
-    color: #856404;
+.highlight-move-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 28%;
+  height: 28%;
+  border-radius: 50%;
+  background: var(--board-highlight-move);
+  pointer-events: none;
 }
 
-.status {
-    padding: 12px;
-    background: #e7f3ff;
-    border-radius: 6px;
-    font-weight: 500;
-    color: #0066cc;
+.highlight-check {
+  background-color: var(--board-check) !important;
 }
 
-/* Чат - ИСПРАВЛЕНО */
-.chat-section {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 700px;
+/* ---------- Board Controls ---------- */
+.board-controls {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.chat-header {
-    padding: 15px 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.board-controls .btn {
+  padding: 7px 14px;
+  font-size: 0.82rem;
+  border-radius: 6px;
 }
 
-.chat-header h3 {
-    color: white;
-    margin: 0;
+/* ---------- Chat ---------- */
+.chat-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  height: 240px;
+  overflow: hidden;
 }
 
-.players-count {
-    font-size: 14px;
-    opacity: 0.9;
-    color: white;
+.chat-box h3 {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
 }
 
 .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    background: #f8f9fa;
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.chat-messages div {
-    margin-bottom: 10px;
-    padding: 10px 14px;
-    background: white;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #333;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.chat-msg {
+  font-size: 0.85rem;
+  line-height: 1.4;
 }
 
-.chat-messages div strong {
-    color: #667eea;
-    font-weight: 600;
+.chat-msg .sender {
+  font-weight: 600;
+  color: var(--accent);
+  margin-right: 4px;
 }
 
-.chat-messages .system {
-    background: #e7f3ff;
-    color: #0066cc;
-    font-style: italic;
-    font-size: 13px;
-    text-align: center;
+.chat-msg.system {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.78rem;
 }
 
-.chat-input {
-    display: flex;
-    padding: 15px;
-    background: white;
-    border-top: 1px solid #e0e0e0;
+.chat-input-row {
+  display: flex;
+  border-top: 1px solid var(--border);
 }
 
-.chat-input input {
-    flex: 1;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    margin-right: 10px;
-    color: #333;
+.chat-input-row input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 10px 12px;
+  color: var(--text);
+  font-size: 0.88rem;
+  outline: none;
 }
 
-.chat-input input:focus {
-    outline: none;
-    border-color: #667eea;
+.chat-input-row button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 0 16px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: opacity 0.15s;
 }
 
-.chat-input button {
-    padding: 12px 20px;
-    background: #667eea;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
+.chat-input-row button:hover { opacity: 0.85; }
+
+/* ---------- Move History ---------- */
+.move-history {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  flex: 1;
+  min-height: 180px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Подсветка ходов */
-.highlight-from {
-    background: rgba(255, 255, 0, 0.8) !important;
+.move-history h3 {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
 }
 
-.highlight-to {
-    background: rgba(0, 255, 0, 0.8) !important;
+.move-list {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px 0;
 }
 
-/* Адаптивность */
+.move-list::-webkit-scrollbar { width: 4px; }
+.move-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.move-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 1fr;
+  gap: 4px;
+  padding: 3px 14px;
+  font-size: 0.85rem;
+  font-family: 'Courier New', monospace;
+}
+
+.move-row:hover { background: rgba(255,255,255,0.04); cursor: pointer; }
+.move-row .move-num { color: var(--text-muted); }
+.move-row .move-white,
+.move-row .move-black { color: var(--text); }
+.move-row .move-white:hover,
+.move-row .move-black:hover { color: var(--accent); }
+
+/* ---------- Status Bar ---------- */
+.status-bar {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  padding: 4px 0;
+  min-height: 24px;
+}
+
+.status-bar.check    { color: #ff9800; font-weight: 600; }
+.status-bar.checkmate { color: var(--accent); font-weight: 700; }
+
+/* ---------- Modal ---------- */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.modal {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+
+.modal h2 { margin-bottom: 12px; font-size: 1.6rem; }
+.modal p  { color: var(--text-muted); margin-bottom: 20px; }
+
+.modal .btn-row {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ---------- Stockfish Hint ---------- */
+.hint-box {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  min-height: 36px;
+}
+
+.hint-box strong { color: #4caf50; }
+
+/* ---------- Notifications / Toast ---------- */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  color: var(--text);
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease;
+  z-index: 900;
+}
+
+.toast.show {
+  transform: translateX(-50%) translateY(0);
+}
+
+/* =============================================
+   МОБИЛЬНАЯ АДАПТАЦИЯ
+   ============================================= */
+
 @media (max-width: 900px) {
-    .game-layout {
-        grid-template-columns: 1fr;
-    }
-    
-    .chat-section {
-        height: 400px;
-    }
+  .game-wrapper {
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+  }
+
+  .side-panel {
+    width: 100%;
+    max-width: 560px;
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .move-history { flex: 1; min-height: 160px; }
+  .chat-box     { flex: 1; min-height: 160px; }
+}
+
+@media (max-width: 600px) {
+  /* Доска на всю ширину */
+  #board {
+    width: 96vw !important;
+  }
+
+  .board-controls .btn {
+    padding: 6px 10px;
+    font-size: 0.78rem;
+  }
+
+  /* Чат ниже, вертикально */
+  .side-panel {
+    flex-direction: column;
+  }
+
+  .move-history { max-height: 140px; }
+  .chat-box     { height: 180px; }
+
+  header h1 { font-size: 1.1rem; }
+
+  .player-bar .timer { font-size: 1rem; }
+
+  .lobby-card {
+    padding: 24px 18px;
+  }
+}
+
+
+/* =============================================
+   ЭТАП 1.3 — Дополнения для мобильной адаптации
+   ============================================= */
+
+/* Игровой экран — flex-column чтобы занять всю высоту */
+#game-section {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.game-wrapper {
+  flex: 1;
+}
+
+/* ── Touch-friendly элементы ── */
+.btn, .chat-input-row button, #chat-send {
+  min-height: 40px;
+  touch-action: manipulation; /* убирает 300ms задержку на мобиле */
+}
+
+/* ── Доска никогда не выходит за экран ── */
+#board {
+  max-width: 100%;
+  touch-action: none; /* важно для drag-and-drop на мобиле */
+}
+
+/* ── Подсказка Stockfish — компактнее на мобиле ── */
+.hint-box {
+  width: 100%;
+}
+
+/* ══════════════════════════
+   480px и ниже — телефоны
+══════════════════════════ */
+@media (max-width: 480px) {
+
+  header {
+    padding: 8px 12px;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  header h1 { font-size: 1rem; }
+
+  .room-info {
+    font-size: 0.75rem;
+    width: 100%;
+  }
+
+  .game-wrapper {
+    padding: 8px 6px;
+    gap: 10px;
+  }
+
+  /* Доска точно по ширине экрана минус паддинги */
+  #board {
+    width: calc(100vw - 12px) !important;
+  }
+
+  /* Инфо-бары: компактнее */
+  .player-bar {
+    padding: 6px 10px;
+  }
+
+  .player-bar .timer {
+    font-size: 0.95rem;
+  }
+
+  /* Кнопки в 2 колонки */
+  .board-controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 6px;
+  }
+
+  .board-controls .btn {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 8px 6px;
+  }
+
+  /* Боковая панель: вертикально, фиксированная высота */
+  .side-panel {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .move-history {
+    max-height: 130px;
+    min-height: 0;
+  }
+
+  .chat-box {
+    height: 200px;
+  }
+
+  /* Статус-бар крупнее — чтобы было видно */
+  #status-bar {
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 6px 0;
+  }
+
+  /* Подсказка — совсем компактная */
+  .hint-box {
+    font-size: 0.78rem;
+    padding: 6px 10px;
+  }
+
+  /* Лобби: меньше отступы */
+  .lobby {
+    padding: 16px 8px;
+  }
+
+  .lobby-card {
+    padding: 20px 16px;
+  }
+}
+
+/* ══════════════════════════════════════════
+   Landscape на телефоне (горизонтально)
+══════════════════════════════════════════ */
+@media (max-width: 900px) and (orientation: landscape) {
+
+  .game-wrapper {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 6px 8px;
+  }
+
+  /* Доска — по высоте экрана */
+  #board {
+    width: calc(100vh - 110px) !important;
+  }
+
+  .board-section {
+    gap: 4px;
+  }
+
+  .player-bar {
+    padding: 4px 10px;
+  }
+
+  .player-bar .avatar { display: none; }
+
+  /* Боковая панель — справа, вертикально */
+  .side-panel {
+    width: 220px;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .move-history { min-height: 120px; }
+  .chat-box     { height: 180px; }
+
+  .board-controls {
+    gap: 4px;
+  }
+
+  .board-controls .btn {
+    padding: 5px 8px;
+    font-size: 0.76rem;
+  }
+}
+
+
+/* =============================================
+   ЭТАП 2 — Таймер, история ходов, кнопки, анимации
+   ============================================= */
+
+/* ── Выбор времени в лобби ── */
+.time-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.time-btn {
+  flex: 1;
+  min-width: 60px;
+  padding: 8px 4px;
+  background: var(--bg-card);
+  border: 2px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.time-btn.active,
+.time-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+/* ── Таймер — активный игрок ── */
+.player-bar.active {
+  border-color: rgba(76, 175, 80, 0.5);
+  background: rgba(76, 175, 80, 0.06);
+}
+
+.player-bar.active .timer {
+  color: #4caf50;
+}
+
+/* ── Таймер — мало времени ── */
+.player-bar.low-time .timer {
+  color: var(--accent);
+  animation: blink 0.8s step-start infinite;
+}
+
+/* ── Подсветка клеток ── */
+[data-square].highlight-last {
+  background-color: rgba(20, 85, 30, 0.5) !important;
+  position: relative;
+}
+
+[data-square].highlight-dot::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30%;
+  height: 30%;
+  border-radius: 50%;
+  background: rgba(20, 85, 30, 0.4);
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Клетка с фигурой + dot — кольцо вместо точки */
+[data-square].highlight-dot:not(:empty)::after {
+  width: 85%;
+  height: 85%;
+  background: transparent;
+  border: 4px solid rgba(20, 85, 30, 0.45);
+  border-radius: 50%;
+}
+
+[data-square].highlight-check {
+  background-color: rgba(220, 20, 20, 0.65) !important;
+}
+
+/* ── Анимация ходов chessboard.js ── */
+.board-container .piece-417db42 {
+  transition: transform 0.15s ease !important;
+}
+
+/* ── История ходов — строки ── */
+.move-row .move-white,
+.move-row .move-black {
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 1px 4px;
+  transition: background 0.1s;
+}
+
+.move-row .move-white:hover,
+.move-row .move-black:hover {
+  background: rgba(255,255,255,0.1);
+  color: var(--accent);
+}
+
+/* ── Модалка — плавное появление ── */
+.modal-overlay {
+  transition: opacity 0.2s ease;
+}
+
+.modal {
+  animation: modal-in 0.25s ease;
+}
+
+@keyframes modal-in {
+  from { transform: scale(0.92) translateY(10px); opacity: 0; }
+  to   { transform: scale(1)    translateY(0);    opacity: 1; }
+}
+
+/* ── Toast ── */
+.toast {
+  white-space: nowrap;
+  pointer-events: none;
 }
