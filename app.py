@@ -1,5 +1,6 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 from flask_socketio import SocketIO, emit, join_room, leave_room
+import uuid
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "chess_secret_key"
@@ -7,13 +8,15 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 rooms = {}
 
-@app.route("/")
+@app.route('/')
 def index():
-    return render_template("index.html")
+    # Создаем новую комнату и перенаправляем
+    room_id = str(uuid.uuid4())[:8]
+    return redirect(url_for('room', room_id=room_id))
 
-@app.route("/room/<room_id>")
+@app.route('/room/<room_id>')
 def room(room_id):
-    return render_template("index.html", room_id=room_id)
+    return render_template('index.html', room_id=room_id)
 
 @socketio.on("join")
 def on_join(data):
@@ -22,7 +25,8 @@ def on_join(data):
     join_room(room_id)
     if room_id not in rooms:
         rooms[room_id] = {"players": [], "board": "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"}
-    rooms[room_id]["players"].append(username)
+    if username not in rooms[room_id]["players"]:
+        rooms[room_id]["players"].append(username)
     emit("message", {"text": f"{username} присоединился к комнате"}, room=room_id)
     emit("board_state", {"fen": rooms[room_id]["board"], "players": rooms[room_id]["players"]}, room=room_id)
 
